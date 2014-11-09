@@ -1,4 +1,5 @@
 package com.xebia.openkitchen
+package product
 import java.io.File
 import spray.json.JsonParser
 import scala.io.Source
@@ -6,8 +7,8 @@ import java.net.URI
 import ProductDomain._
 import akka.actor._
 import spray.json.JsonParser
-
 import scala.io.Source
+import com.xebia.openkitchen.api.JsonSerializers
 
 /**
  * Product repository trait
@@ -16,7 +17,7 @@ class ProductRepo(val products: Seq[Device]) {
   lazy val productMap: Map[String, Device] = products.map(p => p.id -> p).toMap
 }
 
-object ProductRepo extends JsonSerializers {
+object ProductRepo extends ProductJsonSerializers {
   def apply():ProductRepo = {
     val products = productFilePaths.map { path =>
       val productStr = Source.fromInputStream(getClass.getResourceAsStream(path)).mkString

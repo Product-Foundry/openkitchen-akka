@@ -1,13 +1,14 @@
 package com.xebia.openkitchen
+package cart
 
 import java.util.UUID
-
 import akka.actor.{ ActorLogging, PoisonPill, ReceiveTimeout, Props }
 import akka.persistence._
-
 import scala.concurrent.duration._
-import ProductDomain._
+import product.ProductDomain._
 import SimpleCartActor._
+import akka.actor.actorRef2Scala
+import product.ActorContextProductRepoSupport
 object PersistentCartActor {
 
   def props = Props[PersistentCartActor]

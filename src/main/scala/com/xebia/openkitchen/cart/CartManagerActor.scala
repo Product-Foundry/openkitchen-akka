@@ -1,5 +1,5 @@
 package com.xebia.openkitchen
-
+package cart
 import akka.actor.Actor
 import akka.actor.ActorLogging
 import akka.actor.Props

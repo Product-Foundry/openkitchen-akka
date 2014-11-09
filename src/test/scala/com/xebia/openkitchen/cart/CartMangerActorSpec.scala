@@ -1,12 +1,14 @@
 package com.xebia.openkitchen
 
+
 import akka.actor._
 import org.junit.runner.RunWith
 import org.specs2.mutable.Specification
-import org.specs2.runner.JUnitRunner
 import akka.testkit.TestSupport._
 import akka.testkit._
-import CartManagerActor._
+import cart.CartManagerActor._
+import com.xebia.openkitchen.cart.CartManagerActor
+import org.specs2.runner.JUnitRunner
 import akka.contrib.pattern.ShardRegion.Passivate
 @RunWith(classOf[JUnitRunner])
 class CartMangerActorSpec extends Specification {

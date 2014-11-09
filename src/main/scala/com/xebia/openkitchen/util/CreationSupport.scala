@@ -1,5 +1,10 @@
 package com.xebia.openkitchen.util
 import akka.actor.{ ActorContext, ActorRef, Props }
+import scala.concurrent.ExecutionContext
+import akka.util.Timeout
+import akka.actor.Actor
+import scala.concurrent.duration._
+import akka.actor.ActorSystem
 
 trait CreationSupport {
   def getChild(name: String): Option[ActorRef]
@@ -12,5 +17,27 @@ trait ActorContextCreationSupport extends CreationSupport {
 
   def getChild(name: String): Option[ActorRef] = context.child(name)
   def createChild(props: Props, name: String): ActorRef = context.actorOf(props, name)
+}
+
+//======================= ExecutionContextSupport=========================
+trait ExecutionContextSupport {
+  import scala.concurrent.ExecutionContext
+  implicit def executionContext: ExecutionContext
+}
+trait ActorExecutionContextSupport extends ExecutionContextSupport {
+  this: Actor ⇒
+  implicit def executionContext:ExecutionContext = context.dispatcher
+}
+
+trait ActorSystemContextSupport extends ExecutionContextSupport {
+  def system:ActorSystem
+  implicit def executionContext:ExecutionContext = system.dispatcher
+}
+
+
+//======================= AskSupport=========================
+trait ActorAskSupport {
+  import akka.pattern.ask
+  implicit val AskTimeout = Timeout(5 seconds)
 }
 

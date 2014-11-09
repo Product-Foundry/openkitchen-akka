@@ -1,4 +1,5 @@
 package com.xebia.openkitchen
+package product
 
 import org.specs2.mutable.Specification
 import spray.http._
@@ -7,7 +8,8 @@ import spray.http.MediaTypes._
 import spray.json._
 import spray.json.DefaultJsonProtocol._
 import scala.collection.JavaConversions._
-import SimpleCartActor._
+import cart.SimpleCartActor._
+import api.JsonSerializers
 class DomainMarshallerSpec extends Specification with JsonSerializers {
   "Product Repo" should {
     "be initialize correctly" in {

@@ -1,12 +1,13 @@
 package com.xebia.openkitchen
+package cart
 
 import spray.testkit.Specs2RouteTest
 import org.specs2.mutable.Specification
 import akka.testkit.TestSupport._
 import CartManagerActor._
 import SimpleCartActor._
-import ProductDomain._
-import akka.actor.Props
+import product.ProductDomain._
+import product._
 class SimpleCartActorSpec extends Specification
   with Specs2RouteTest with ProductRepoSupportProvider {
 

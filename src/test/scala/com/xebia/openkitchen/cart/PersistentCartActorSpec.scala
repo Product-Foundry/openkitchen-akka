@@ -1,4 +1,6 @@
 package com.xebia.openkitchen
+package cart
+
 import akka.testkit.TestSupport._
 import scala.concurrent.duration._
 import akka.testkit.PersistenceSpec
@@ -6,7 +8,9 @@ import akka.testkit.ImplicitSender
 import akka.testkit.AkkaSpec
 import CartManagerActor._
 import SimpleCartActor._
-import ProductDomain._
+import product.ProductDomain._
+import product._
+
 trait DeactivatedTimeConversions extends org.specs2.time.TimeConversions {
   override def intToRichLong(v: Int) = super.intToRichLong(v)
 }

@@ -1,8 +1,9 @@
 package com.xebia.openkitchen
+package product
 
 import java.util.UUID
-
 import spray.json.DefaultJsonProtocol
+import spray.httpx.SprayJsonSupport
 object ProductDomain {
   case class Android(os: String, ui: String)
 
@@ -17,4 +18,18 @@ object ProductDomain {
 
 }
 
+
+trait ProductJsonSerializers extends DefaultJsonProtocol with SprayJsonSupport {
+  import ProductDomain._
+  //Product
+    implicit val androidFormat = jsonFormat2(Android.apply)
+    implicit val batteryFormat = jsonFormat3(Battery.apply)
+    implicit val connectivityFormat = jsonFormat5(Connectivity.apply)
+    implicit val displayFormat = jsonFormat3(Display.apply)
+    implicit val hardwareFormat = jsonFormat6(Hardware.apply)
+    implicit val cameraFormat = jsonFormat2(Camera.apply)
+    implicit val sAndWFormat = jsonFormat2(SizeAndWeight.apply)
+    implicit val storageFormat = jsonFormat2(Storage.apply)
+    implicit val deviceFormat = jsonFormat14(Device.apply)
+}
 

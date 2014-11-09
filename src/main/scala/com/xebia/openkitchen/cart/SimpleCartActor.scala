@@ -1,11 +1,13 @@
 package com.xebia.openkitchen
+package cart
 
 import java.util.UUID
 
-import ProductDomain.Device
+import product.ProductDomain.Device
 import CartManagerActor.Envelope
 import akka.actor._
 import akka.actor.ActorLogging
+import product.ActorContextProductRepoSupport
 
 
 

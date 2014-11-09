@@ -1,4 +1,5 @@
 package com.xebia.openkitchen
+package api
 
 import org.junit.runner.RunWith
 import org.specs2.mutable.Specification
@@ -7,14 +8,17 @@ import spray.http.StatusCodes._
 import spray.testkit.Specs2RouteTest
 import spray.httpx.SprayJsonSupport._
 import spray.routing._
-import SimpleCartActor._
+import cart.SimpleCartActor._
 import akka.testkit.TestActor
-import org.specs2.runner.JUnitRunner
 import spray.http.HttpHeaders.Cookie
 import akka.actor.ActorRef
 import spray.http.HttpCookie
+import akka.actor.actorRef2Scala
+import com.xebia.openkitchen.product.ProductRepo
+import org.specs2.runner.JUnitRunner
+import util._
 @RunWith(classOf[JUnitRunner])
-class ECommerceRouteSpec extends Specification with Specs2RouteTest with ECommerceRoute {
+class WebshopRouteSpec extends Specification with Specs2RouteTest with WebshopRoute with ActorSystemContextSupport{
 
   def productRepo = ProductRepo()
   def actorRefFactory = system

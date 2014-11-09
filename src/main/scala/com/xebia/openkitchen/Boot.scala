@@ -5,13 +5,16 @@ import akka.actor.actorRef2Scala
 import akka.io.IO
 import spray.can.Http
 import spray.can.Http.Bind
+import api.WebshopActor
+import cart.CartManagerActor
+import cart.SimpleCartActor
 trait WebApp extends App {
 
   implicit val system = ActorSystem("webshop")
 
   val cartHandlerProps = CartManagerActor.props(SimpleCartActor.props)
   // create and start our service actor
-  val service = system.actorOf(ECommerceActor.props(cartHandlerProps), ECommerceActor.name)
+  val service = system.actorOf(WebshopActor.props(cartHandlerProps), WebshopActor.name)
 
   // To run project on Heroku, get PORT from environment
   val httpHost = "0.0.0.0"
