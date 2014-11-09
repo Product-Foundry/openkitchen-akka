@@ -3,7 +3,7 @@ package cart
 
 import java.util.UUID
 
-import product.ProductDomain.Device
+import product.Device
 import CartManagerActor.Envelope
 import akka.actor._
 import akka.actor.ActorLogging

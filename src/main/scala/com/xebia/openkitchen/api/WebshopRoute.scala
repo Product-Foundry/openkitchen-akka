@@ -13,7 +13,7 @@ import akka.event.Logging
 import akka.pattern.ask
 import akka.util.Timeout
 import cart.CartManagerActor.Envelope
-import product.ProductDomain._
+import product._
 import spray.http._
 import spray.http.Uri.Path
 import spray.http.Uri.apply

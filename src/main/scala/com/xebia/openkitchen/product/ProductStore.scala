@@ -4,27 +4,24 @@ import java.io.File
 import spray.json.JsonParser
 import scala.io.Source
 import java.net.URI
-import ProductDomain._
-import akka.actor._
-import spray.json.JsonParser
 import scala.io.Source
 import com.xebia.openkitchen.api.JsonSerializers
 
 /**
  * Product repository trait
  */
-class ProductRepo(val products: Seq[Device]) {
+class ProductStore(val products: Seq[Device]) {
   lazy val productMap: Map[String, Device] = products.map(p => p.id -> p).toMap
 }
 
-object ProductRepo extends ProductJsonSerializers {
-  def apply():ProductRepo = {
+object ProductStore extends ProductJsonSerializers {
+  def apply():ProductStore = {
     val products = productFilePaths.map { path =>
       val productStr = Source.fromInputStream(getClass.getResourceAsStream(path)).mkString
       val jsonAst = JsonParser(productStr)
       jsonAst.convertTo[Device]
     }
-    new ProductRepo(products)
+    new ProductStore(products)
   }
 
   /**
@@ -38,37 +35,12 @@ object ProductRepo extends ProductJsonSerializers {
     val productDirRoot = "/root/phones"
     import org.json4s._
     import org.json4s.native.JsonMethods._
-    val productsStr = Source.fromInputStream(ProductRepoExtension.getClass.getResourceAsStream(s"$productDirRoot/phones.json")).mkString
+    val productsStr = Source.fromInputStream(ProductStoreExtension.getClass.getResourceAsStream(s"$productDirRoot/phones.json")).mkString
     val jsonAst = parse(productsStr)
     val productsJStr = jsonAst \\ "id" \\ classOf[JString]
     productsJStr.map(p => s"$productDirRoot/$p.json")
   }
 
-}
-/**
- * Extension
- */
-private[openkitchen] class ProductRepoExtensionImpl(val productRepo:ProductRepo) extends Extension {
-}
-
-private[openkitchen] object ProductRepoExtension extends ExtensionId[ProductRepoExtensionImpl] with ExtensionIdProvider  {//extends ExtensionKey[ProductRepoExtension]
- override def lookup = ProductRepoExtension
-
-  override def createExtension(system: ExtendedActorSystem) =
-    new ProductRepoExtensionImpl(ProductRepo())
-}
-
-/**
- * Extension trait
- */
-trait ProductRepoSupportProvider extends Serializable {
-  def system: ActorSystem
-  lazy val productRepo = ProductRepoExtension(system).productRepo
-}
-
-trait ActorContextProductRepoSupport extends ProductRepoSupportProvider {
-  def context: ActorContext
-  def system = context.system
 }
 
 

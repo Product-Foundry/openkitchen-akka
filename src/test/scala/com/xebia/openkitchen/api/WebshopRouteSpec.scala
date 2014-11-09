@@ -14,13 +14,13 @@ import spray.http.HttpHeaders.Cookie
 import akka.actor.ActorRef
 import spray.http.HttpCookie
 import akka.actor.actorRef2Scala
-import com.xebia.openkitchen.product.ProductRepo
+import com.xebia.openkitchen.product.ProductStore
 import org.specs2.runner.JUnitRunner
 import util._
 @RunWith(classOf[JUnitRunner])
 class WebshopRouteSpec extends Specification with Specs2RouteTest with WebshopRoute with ActorSystemContextSupport{
 
-  def productRepo = ProductRepo()
+  def productRepo = ProductStore()
   def actorRefFactory = system
   override val cartHandler = {
     val probe = TestProbe()

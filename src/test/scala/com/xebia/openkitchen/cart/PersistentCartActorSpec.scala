@@ -8,14 +8,14 @@ import akka.testkit.ImplicitSender
 import akka.testkit.AkkaSpec
 import CartManagerActor._
 import SimpleCartActor._
-import product.ProductDomain._
+import product._
 import product._
 
 trait DeactivatedTimeConversions extends org.specs2.time.TimeConversions {
   override def intToRichLong(v: Int) = super.intToRichLong(v)
 }
 
-class PersistentCartActorSpec extends AkkaSpec(PersistenceSpec.config("leveldb", "ShoppingCartActorSpec")) with PersistenceSpec with ImplicitSender with ProductRepoSupportProvider {
+class PersistentCartActorSpec extends AkkaSpec(PersistenceSpec.config("leveldb", "ShoppingCartActorSpec")) with PersistenceSpec with ImplicitSender with ProductStoreSupportProvider {
   "The CartActor" should { 
     val product = productRepo.products.head
 

@@ -4,7 +4,6 @@ package product
 import java.util.UUID
 import spray.json.DefaultJsonProtocol
 import spray.httpx.SprayJsonSupport
-object ProductDomain {
   case class Android(os: String, ui: String)
 
   case class Battery(standbyTime: String, talkTime: String, batteryType: String)
@@ -16,12 +15,9 @@ object ProductDomain {
   case class Storage(flash: String, ram: String)
   case class Device(additionalFeatures: String, android: Android, availability: List[String], battery: Battery, camera: Camera, connectivity: Connectivity, description: String, display: Display, hardware: Hardware, id: String, images: List[String], name: String, sizeAndWeight: SizeAndWeight, storage: Storage)
 
-}
 
 
 trait ProductJsonSerializers extends DefaultJsonProtocol with SprayJsonSupport {
-  import ProductDomain._
-  //Product
     implicit val androidFormat = jsonFormat2(Android.apply)
     implicit val batteryFormat = jsonFormat3(Battery.apply)
     implicit val connectivityFormat = jsonFormat5(Connectivity.apply)

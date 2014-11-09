@@ -5,7 +5,7 @@ import java.util.UUID
 import akka.actor.{ ActorLogging, PoisonPill, ReceiveTimeout, Props }
 import akka.persistence._
 import scala.concurrent.duration._
-import product.ProductDomain._
+import product._
 import SimpleCartActor._
 import akka.actor.actorRef2Scala
 import product.ActorContextProductRepoSupport

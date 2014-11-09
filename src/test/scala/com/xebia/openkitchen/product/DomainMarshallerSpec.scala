@@ -13,13 +13,13 @@ import api.JsonSerializers
 class DomainMarshallerSpec extends Specification with JsonSerializers {
   "Product Repo" should {
     "be initialize correctly" in {
-      val repo = ProductRepo.apply()
+      val repo = ProductStore.apply()
       repo.products.size must be_>(1)
     }
   }
   "Cart items" should {
     "be serializable" in {
-      val repo = ProductRepo.apply()
+      val repo = ProductStore.apply()
       val jsonAst = Seq(ShoppingCartItem(repo.products.head, 1)).toJson
       val cart = jsonAst.convertTo[Seq[ShoppingCartItem]]
       cart.size ==== 1

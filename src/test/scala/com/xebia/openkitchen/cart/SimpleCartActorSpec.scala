@@ -6,10 +6,10 @@ import org.specs2.mutable.Specification
 import akka.testkit.TestSupport._
 import CartManagerActor._
 import SimpleCartActor._
-import product.ProductDomain._
+import product._
 import product._
 class SimpleCartActorSpec extends Specification
-  with Specs2RouteTest with ProductRepoSupportProvider {
+  with Specs2RouteTest with ProductStoreSupportProvider {
 
   "The CartActor" should {
     "read items" in new AkkaTestkitContext() {
