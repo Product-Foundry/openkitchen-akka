@@ -1,0 +1,41 @@
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-md-2">
+      <!--Sidebar content-->
+
+      Search: <input ng-model="query">
+      Sort by:
+      <select ng-model="orderProp">
+        <option value="name">Alphabetical</option>
+        <option value="age">Newest</option>
+      </select>
+      <p>
+       <ul  class="list-group">
+	      <li class="list-group-item" ng-show="cartItems.length > 0"><strong>Shopping Cart</strong></li>
+	    <li ng-repeat="cartItem in cartItems"
+           class="list-group-item">
+          <a href="#/phones/{{cartItem.item.id}}">{{cartItem.item.name}}</a><br/>
+          Quantity: {{cartItem.count}} <a ng-click="removeFromCart(cartItem)">
+          	<img src="img/delete.png" height="15" width="15"/>
+          </a>
+        </li>
+        <li class="list-group-item" ng-show="cartItems.length > 0"> <a href="#/checkout" >Check out</a></li>
+        </ul>
+       </p>
+    </div>
+    <div class="col-md-10">
+      <!--Body content-->
+
+      <ul class="phones" >
+        <li ng-repeat="phone in phones | filter:query | orderBy:orderProp"
+            class="thumbnail phone-listing">
+          <a href="#/phones/{{phone.id}}" class="thumb"><img ng-src="{{phone.imageUrl}}"></a>
+          <a href="#/phones/{{phone.id}}">{{phone.name}}</a>&nbsp;<button ng-click="addToCart(phone)">Add to Cart</button>
+          <p>{{phone.snippet}}</p>
+          
+        </li>
+      </ul>
+ 
+    </div>
+  </div>
+</div>

@@ -1,0 +1,11 @@
+.idea/
+project/boot
+project/plugins/project
+project/target
+target/
+lib_managed/
+src_managed/
+test-output/
+*.iml
+chromedriver.log
+.history

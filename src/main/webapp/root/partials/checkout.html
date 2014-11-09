@@ -1,0 +1,28 @@
+    <h4>Checkout</h4>
+	<div ng-controller="CheckoutCtrl">
+		<div class="alert alert-success" ng-show="cartItems.length == 0 && (orderId && orderId.length > 0)">
+			<p>
+			<h5>Your order has been processed successfully</h5>
+			<br />Your order id is: {{orderId}}
+			</p>
+		</div>
+		<div>
+		
+			<ul class="list-group">
+				<li  class="list-group-item" ng-show="cartItems.length > 0">Total items: {{cartItems.length}}</li>
+				<li ng-repeat="cartItem in cartItems" class="list-group-item">
+					<a href="#/phones/{{cartItem.item.id}}">{{cartItem.item.name}}</a><br />
+					Quantity: {{cartItem.count}} <a ng-click="removeFromCart(cartItem)">
+						<img src="img/delete.png" height="15" width="15" /></a>
+				</li>
+				
+					<li  class="list-group-item" ng-show="cartItems.length > 0">
+					<button ng-click="placeOrder()">Place Order</button>
+				</li>
+				
+			</ul>
+		</div>
+		<div>
+			<a href="#/phones">Back</a>
+		</div>
+	</div>
