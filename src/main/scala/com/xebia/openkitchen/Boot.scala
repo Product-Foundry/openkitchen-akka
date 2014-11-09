@@ -6,8 +6,7 @@ import akka.io.IO
 import spray.can.Http
 import spray.can.Http.Bind
 import api.WebshopActor
-import cart.CartManagerActor
-import cart.SimpleCartActor
+import cart._
 trait WebApp extends App {
 
   implicit val system = ActorSystem("webshop")
