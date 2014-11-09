@@ -43,13 +43,18 @@ trait ECommerceRoute extends HttpService with StaticResources with Api {
     }
 }
 
+object Api {
+    case class OrderStateResponse(state: String, orderId: Option[String] = None)
+
+}
+
 //REST Api
 trait Api extends HttpService with JsonSerializers with DirectiveExtensions{
   import akka.pattern.ask
   import ExecutionContext.Implicits.global
-  import CartMessages._
+  import SimpleCartActor._
   import CartManagerActor._
-  import OrderMessages._
+  import Api._
   implicit val timeout = Timeout(20 seconds)
   
   val cartHandler: ActorRef
@@ -58,7 +63,7 @@ trait Api extends HttpService with JsonSerializers with DirectiveExtensions{
   val sessionId:Directive1[String] = getOrCreateSessionCookie("session-id").flatMap {
     case c:HttpCookie => provide(c.content)
   }
-  val shoppingCartRoutes =
+  val shoppingCartRoutes = 
     pathPrefix("cart") {
         (post & sessionId) {sessionId  =>  
           entity(as[AddToCartRequest]) { addMsg =>

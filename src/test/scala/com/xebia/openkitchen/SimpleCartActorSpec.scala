@@ -4,8 +4,7 @@ import spray.testkit.Specs2RouteTest
 import org.specs2.mutable.Specification
 import akka.testkit.TestSupport._
 import CartManagerActor._
-import CartMessages._
-import OrderMessages._
+import SimpleCartActor._
 import ProductDomain._
 import akka.actor.Props
 class SimpleCartActorSpec extends Specification

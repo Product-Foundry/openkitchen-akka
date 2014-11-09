@@ -6,9 +6,8 @@ import akka.actor.{ ActorLogging, PoisonPill, ReceiveTimeout, Props }
 import akka.persistence._
 
 import scala.concurrent.duration._
-import CartMessages._
-import OrderMessages._
 import ProductDomain._
+import SimpleCartActor._
 object PersistentCartActor {
 
   def props(productRepo: ProductRepo) = Props[PersistentCartActor](new PersistentCartActor(productRepo))

@@ -7,8 +7,7 @@ import spray.http.StatusCodes._
 import spray.testkit.Specs2RouteTest
 import spray.httpx.SprayJsonSupport._
 import spray.routing._
-import CartMessages._
-import OrderMessages._
+import SimpleCartActor._
 import akka.testkit.TestActor
 import org.specs2.runner.JUnitRunner
 import spray.http.HttpHeaders.Cookie

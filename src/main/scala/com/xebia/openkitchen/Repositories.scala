@@ -3,7 +3,6 @@ import java.io.File
 import spray.json.JsonParser
 import scala.io.Source
 import java.net.URI
-import CartMessages._
 import ProductDomain._
 
 /**
@@ -58,6 +57,8 @@ object ProductRepo extends JsonSerializers{
  * Session repository trait
  */
 trait SessionRepo {
+import SimpleCartActor._
+
   import collection.mutable._
 
   val sessionState = Map[String, Seq[ShoppingCartItem]]()

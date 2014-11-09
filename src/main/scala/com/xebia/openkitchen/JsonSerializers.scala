@@ -3,7 +3,8 @@ package com.xebia.openkitchen
 import spray.json.DefaultJsonProtocol
 import spray.httpx.SprayJsonSupport
 import ProductDomain._
-import CartMessages._
+import SimpleCartActor._
+import Api._
 trait JsonSerializers extends DefaultJsonProtocol with SprayJsonSupport {
   //Product
     implicit val androidFormat = jsonFormat2(Android.apply)

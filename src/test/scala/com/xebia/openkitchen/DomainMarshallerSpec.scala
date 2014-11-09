@@ -7,8 +7,7 @@ import spray.http.MediaTypes._
 import spray.json._
 import spray.json.DefaultJsonProtocol._
 import scala.collection.JavaConversions._
-import CartMessages._
-import OrderMessages._
+import SimpleCartActor._
 class DomainMarshallerSpec extends Specification with JsonSerializers {
   "Product Repo" should {
     "be initialize correctly" in {

@@ -5,8 +5,7 @@ import akka.testkit.PersistenceSpec
 import akka.testkit.ImplicitSender
 import akka.testkit.AkkaSpec
 import CartManagerActor._
-import CartMessages._
-import OrderMessages._
+import SimpleCartActor._
 import ProductDomain._
 trait DeactivatedTimeConversions extends org.specs2.time.TimeConversions {
   override def intToRichLong(v: Int) = super.intToRichLong(v)
