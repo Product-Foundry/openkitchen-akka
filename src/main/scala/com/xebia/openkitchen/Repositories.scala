@@ -4,31 +4,26 @@ import spray.json.JsonParser
 import scala.io.Source
 import java.net.URI
 import ProductDomain._
+import akka.actor._
+import spray.json.JsonParser
+
+import scala.io.Source
 
 /**
  * Product repository trait
  */
-trait ProductRepo extends Serializable {
-  val products: Seq[Device]
+class ProductRepo(val products: Seq[Device]) {
   lazy val productMap: Map[String, Device] = products.map(p => p.id -> p).toMap
 }
 
-class ProductRepoImpl(val products: Seq[Device]) extends ProductRepo 
-
-/**
- * Loads products stored in static resources
- * /webapp/root/phones
- * /root/\* will be accessible from the classpath
- */
-object ProductRepo extends JsonSerializers{
-
-  def apply(): ProductRepo = {
+object ProductRepo extends JsonSerializers {
+  def apply():ProductRepo = {
     val products = productFilePaths.map { path =>
       val productStr = Source.fromInputStream(getClass.getResourceAsStream(path)).mkString
       val jsonAst = JsonParser(productStr)
       jsonAst.convertTo[Device]
     }
-    new ProductRepoImpl(products)
+    new ProductRepo(products)
   }
 
   /**
@@ -41,58 +36,42 @@ object ProductRepo extends JsonSerializers{
   private def productFilePaths: Seq[String] = {
     val productDirRoot = "/root/phones"
     import org.json4s._
-    import org.json4s.JsonDSL._
     import org.json4s.native.JsonMethods._
-    val productsStr = Source.fromInputStream(ProductRepo.getClass.getResourceAsStream(s"$productDirRoot/phones.json")).mkString
+    val productsStr = Source.fromInputStream(ProductRepoExtension.getClass.getResourceAsStream(s"$productDirRoot/phones.json")).mkString
     val jsonAst = parse(productsStr)
-    val productsJStr = (jsonAst \\ "id" \\ classOf[JString])
+    val productsJStr = jsonAst \\ "id" \\ classOf[JString]
     productsJStr.map(p => s"$productDirRoot/$p.json")
   }
 
 }
+/**
+ * Extension
+ */
+private[openkitchen] class ProductRepoExtensionImpl(val productRepo:ProductRepo) extends Extension {
+}
 
+private[openkitchen] object ProductRepoExtension extends ExtensionId[ProductRepoExtensionImpl] with ExtensionIdProvider  {//extends ExtensionKey[ProductRepoExtension]
+ override def lookup = ProductRepoExtension
 
+  override def createExtension(system: ExtendedActorSystem) =
+    new ProductRepoExtensionImpl(ProductRepo())
+}
 
 /**
- * Session repository trait
+ * Extension trait
  */
-trait SessionRepo {
-import SimpleCartActor._
-
-  import collection.mutable._
-
-  val sessionState = Map[String, Seq[ShoppingCartItem]]()
-
-  def removeFromCart(sessionId: String, item: Device): Seq[ShoppingCartItem] = {
-    val updatedItems = sessionState.get(sessionId)
-      .map(_.filterNot(_.item.id == item.id))
-      .getOrElse(Seq())
-    sessionState += (sessionId -> updatedItems)
-    updatedItems
-  }
-
-  def getCartItems(sessionId: String) = sessionState.get(sessionId).getOrElse(Seq())
-
-  def checkoutCart(sessionId: String): Seq[ShoppingCartItem] = {
-    val items = getCartItems(sessionId)
-    sessionState += (sessionId -> Seq())
-    items
-  }
-
-  def upsertCart(sessionId: String, item: Device): Seq[ShoppingCartItem] = {
-    val updatedItems = sessionState.get(sessionId) match {
-      case Some(items) => {
-        val updatedItem = items.find(_.item.id == item.id)
-          .map(item => item.copy(count = (item.count + 1)))
-          .getOrElse(ShoppingCartItem(item))
-        updatedItem +: items.filterNot(_.item.id == item.id)
-      }
-      case None => Seq(ShoppingCartItem(item))
-    }
-    sessionState += (sessionId -> updatedItems)
-    updatedItems
-
-  }
+trait ProductRepoSupportProvider extends Serializable {
+  def system: ActorSystem
+  lazy val productRepo = ProductRepoExtension(system).productRepo
 }
-object SessionRepo extends SessionRepo
+
+trait ActorContextProductRepoSupport extends ProductRepoSupportProvider {
+  def context: ActorContext
+  def system = context.system
+}
+
+
+
+
+
 

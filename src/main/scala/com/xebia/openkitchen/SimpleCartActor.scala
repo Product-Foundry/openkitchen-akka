@@ -4,11 +4,7 @@ import java.util.UUID
 
 import ProductDomain.Device
 import CartManagerActor.Envelope
-import SessionRepo.checkoutCart
-import SessionRepo.getCartItems
-import SessionRepo.removeFromCart
-import SessionRepo.upsertCart
-import akka.actor.Actor
+import akka.actor._
 import akka.actor.ActorLogging
 
 
@@ -28,38 +24,56 @@ object SimpleCartActor {
     sealed trait OrderState
   case class OrderProcessed(orderId: String) extends OrderState
   case object OrderProcessingFailed extends OrderState
+  
+  def props = Props(classOf[SimpleCartActor], "simple-cart-actor")
+  
+  case class CartItems(items: Seq[ShoppingCartItem] = Seq()) {
+    def update(item: Device) = {
+      val updatedItem = items.find(_.item.id == item.id)
+        .map(item => item.copy(count = (item.count + 1)))
+        .getOrElse(ShoppingCartItem(item))
+      copy(items = (items.filterNot(_.item.id == item.id) :+ updatedItem))
+    }
+    def remove(item: Device) = {
+      copy(items = items.filterNot(_.item.id == item.id))
+    }
 
+    def clear() = copy(items = Seq())
+    def size = items.size
+    def isEmpty = items.isEmpty
+    override def toString = s"${CartItems.getClass().getSimpleName()} ${items.map(_.item.name).mkString}"
+  }
  
 }
 
 
-class SimpleCartActor(productRepo: ProductRepo) extends Actor with ActorLogging {
+class SimpleCartActor extends Actor with ActorLogging with ActorContextProductRepoSupport {
 
   import SimpleCartActor._
   log.info(s"Creating a new ShoppingCartActor")
-  import SessionRepo._
+  var cart = CartItems()
+
   override def receive: Receive = {
-    case Envelope(sessionId, AddToCartRequest(itemId)) => {
+    case AddToCartRequest(itemId) => {
       doWithItem(itemId) { item =>
-        log.info(s"$sessionId: update cart with item: ${item.name}")
-        val items = upsertCart(sessionId, item)
-        sender ! items
+        log.info(s"update cart with item: ${item.name}")
+        cart = cart.update(item)
+        sender ! cart.items
       }
     }
-    case Envelope(sessionId, RemoveFromCartRequest(itemId)) => {
+    case RemoveFromCartRequest(itemId) => {
       doWithItem(itemId) { item =>
-        log.info(s"$sessionId: remove item: ${item.name} from cart")
-        val items = removeFromCart(sessionId, item)
-        sender ! items
+        log.info(s"remove item: ${item.name} from cart")
+        cart = cart.remove(item)
+        sender ! cart.items
       }
     }
-    case Envelope(sessionId, GetCartRequest) => {
-      val items = getCartItems(sessionId)
-      log.info(s"$sessionId: get items from cart: ${items.map(_.item.name).mkString}")
-      sender ! items
+    case GetCartRequest => {
+      log.info(s"get items from cart: ${cart}")
+      sender ! cart.items
     }
-    case Envelope(sessionId, OrderRequest) => {
-      val orderState = processOrder(sessionId)
+    case OrderRequest => {
+      val orderState = processOrder()
       sender ! orderState
     }
   }
@@ -71,10 +85,10 @@ class SimpleCartActor(productRepo: ProductRepo) extends Actor with ActorLogging 
     }
   }
 
-  private def processOrder(sessionId: String): OrderState = {
-    val items = checkoutCart(sessionId)
-    if (!items.isEmpty) {
-      log.info(s"$sessionId: place order for items: ${items.map(_.item.name).mkString}")
+  private def processOrder(): OrderState = {
+    if (!cart.items.isEmpty) {
+      log.info(s"place order for items: $cart")
+      cart = cart.clear()
       //send items to order actor
       OrderProcessed(UUID.randomUUID().toString)
     } else {

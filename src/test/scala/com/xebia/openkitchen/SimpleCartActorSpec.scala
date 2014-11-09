@@ -8,28 +8,27 @@ import SimpleCartActor._
 import ProductDomain._
 import akka.actor.Props
 class SimpleCartActorSpec extends Specification
-  with Specs2RouteTest {
+  with Specs2RouteTest with ProductRepoSupportProvider {
 
-  val productRepo = ProductRepo()
   "The CartActor" should {
     "read items" in new AkkaTestkitContext() {
-      val reverseActor = system.actorOf(Props(new SimpleCartActor(productRepo)), "cart-actor")
+      val reverseActor = system.actorOf(SimpleCartActor.props)
       import akka.pattern.ask
 
-      reverseActor ! Envelope("sessionId-1", GetCartRequest)
+      reverseActor ! GetCartRequest
 
       expectMsg(Seq())
 
     }
     "order" in new AkkaTestkitContext() {
-      val reverseActor = system.actorOf(Props(new SimpleCartActor(productRepo)), "cart-actor")
+      val reverseActor = system.actorOf(SimpleCartActor.props)
       import akka.pattern.ask
       val product = productRepo.products.head
-      reverseActor ! Envelope("sessionId-2", AddToCartRequest(product.id))
+      reverseActor ! AddToCartRequest(product.id)
 
       expectMsg(Seq(ShoppingCartItem(product, 1)))
 
-      reverseActor ! Envelope("sessionId-2", OrderRequest)
+      reverseActor ! OrderRequest
       expectMsgClass(classOf[OrderProcessed])
     }
   }

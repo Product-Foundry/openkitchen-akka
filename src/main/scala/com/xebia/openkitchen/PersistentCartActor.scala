@@ -18,27 +18,12 @@ object PersistentCartActor {
   case class CartCheckedoutEvent(orderId: UUID) extends Event
   case object SaveSnapshotAndDie
 
-  case class CartItems(items: Seq[ShoppingCartItem] = Seq()) {
-    def update(item: Device) = {
-      val updatedItem = items.find(_.item.id == item.id)
-        .map(item => item.copy(count = (item.count + 1)))
-        .getOrElse(ShoppingCartItem(item))
-      copy(items = (items.filterNot(_.item.id == item.id) :+ updatedItem))
-    }
-    def remove(itemId: String) = {
-      copy(items = items.filterNot(_.item.id == itemId))
-    }
-
-    def clear() = copy(items = Seq())
-    def size = items.size
-    def isEmpty = items.isEmpty
-  }
 
 }
 
 class PersistentCartActor(productRepo: ProductRepo) extends PersistentActor with ActorLogging {
   import PersistentCartActor._
-
+  import productRepo._
   override def persistenceId = context.self.path.name
 
   val receiveTimeout: FiniteDuration = 20 seconds
@@ -48,9 +33,9 @@ class PersistentCartActor(productRepo: ProductRepo) extends PersistentActor with
   def updateState(event: Event): Unit = {
     event match {
       case ItemAddedEvent(itemId) =>
-        cart = cart.update(productRepo.productMap(itemId))
+        cart = cart.update(productMap(itemId))
       case ItemRemovedEvent(itemId) =>
-        cart = cart.remove(itemId)
+        cart = cart.remove(productMap(itemId))
       case CartCheckedoutEvent(_) =>
         cart = cart.clear()
     }
