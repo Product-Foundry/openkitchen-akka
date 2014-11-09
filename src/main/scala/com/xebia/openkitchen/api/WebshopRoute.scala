@@ -25,12 +25,14 @@ import spray.routing.Directive.pimpApply
 import spray.routing.directives.LogEntry
 import spray.routing.directives.OnCompleteFutureMagnet.apply
 
-
-// this trait defines our service behavior independently from the service actor
 trait WebshopRoute extends HttpService with StaticResources with Api with DirectiveExtensions {
-  
 
-  def showPath(req: HttpRequest):Option[LogEntry] = {
+  val myRoute =
+    logRequest(showPath _) {
+      shoppingCartRoutes ~ staticResources
+    }
+
+  private def showPath(req: HttpRequest): Option[LogEntry] = {
     def pathEndsWith(uri: Path, suffix: String*) = suffix.exists(uri.toString.endsWith)
     req match {
       case req @ HttpRequest(HttpMethods.POST, uri, _, entity, _) => Some(LogEntry("Method = %s, Path = %s, Data = %s" format (req.method, uri, entity), Logging.InfoLevel))
@@ -39,30 +41,18 @@ trait WebshopRoute extends HttpService with StaticResources with Api with Direct
     }
   }
 
-  val myRoute =
-    logRequest(showPath _) {
-      shoppingCartRoutes ~ staticResources
-    }
 }
-
-
 
 object Api {
   case class OrderStateResponse(state: String, orderId: Option[String] = None)
-
 }
 
-//REST Api
-trait Api extends HttpService with JsonSerializers with DirectiveExtensions with ExecutionContextSupport with ActorAskSupport{
+trait Api extends HttpService with JsonSerializers with DirectiveExtensions with ExecutionContextSupport with ActorAskSupport {
   import cart.SimpleCartActor._
   import cart.CartManagerActor._
   import Api._
   val cartHandler: ActorRef
 
-  //custom directive to retrieve cookie
-  val sessionId: Directive1[String] = getOrCreateSessionCookie("session-id").flatMap {
-    case c: HttpCookie => provide(c.content)
-  }
   val shoppingCartRoutes =
     pathPrefix("cart") {
       (post & sessionId) { sessionId =>
@@ -105,8 +95,6 @@ trait Api extends HttpService with JsonSerializers with DirectiveExtensions with
 
 }
 
-// Trait for serving static resources
-// Sends 404 for 'favicon.icon' requests and serves static resources in 'bootstrap' folder.
 trait StaticResources extends HttpService {
 
   val staticResources =
