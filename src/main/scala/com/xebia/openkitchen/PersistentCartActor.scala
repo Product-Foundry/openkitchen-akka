@@ -10,7 +10,8 @@ import ProductDomain._
 import SimpleCartActor._
 object PersistentCartActor {
 
-  def props(productRepo: ProductRepo) = Props[PersistentCartActor](new PersistentCartActor(productRepo))
+  def props = Props[PersistentCartActor]
+  def name = "persistent-cart-actor"
 
   sealed trait Event
   case class ItemAddedEvent(itemId: String) extends Event
@@ -18,10 +19,9 @@ object PersistentCartActor {
   case class CartCheckedoutEvent(orderId: UUID) extends Event
   case object SaveSnapshotAndDie
 
-
 }
 
-class PersistentCartActor(productRepo: ProductRepo) extends PersistentActor with ActorLogging {
+class PersistentCartActor extends PersistentActor with ActorLogging with ActorContextProductRepoSupport {
   import PersistentCartActor._
   import productRepo._
   override def persistenceId = context.self.path.name

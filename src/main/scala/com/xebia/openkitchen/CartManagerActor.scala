@@ -8,6 +8,7 @@ import util._
 import akka.actor.actorRef2Scala
 object CartManagerActor {
   def props(cartProps: Props) = Props(new CartManagerActor(cartProps))
+  def name = "cart-manager-actor"
     case class Envelope[T](sessionId: String, t: T)
 
 

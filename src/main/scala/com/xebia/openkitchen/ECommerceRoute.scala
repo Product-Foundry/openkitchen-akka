@@ -1,6 +1,5 @@
 package com.xebia.openkitchen
 import spray.routing
-
 import scala.concurrent.ExecutionContext
 import scala.concurrent.duration._
 import scala.util.Failure
@@ -15,10 +14,14 @@ import spray.routing._
 import spray.routing.directives.LogEntry
 import akka.actor.Props
 import com.xebia.openkitchen.util.DirectiveExtensions
-
+import spray.http.Uri.Path
+import spray.routing.directives.DebuggingDirectives
+import spray.routing.directives.LoggingMagnet
+import spray.util.LoggingContext
 
 object ECommerceActor {
   def props(cartHandlerProps: Props) = Props(new ECommerceActor(cartHandlerProps))
+  def name = "webshop-route"
 }
 // we don't implement our route structure directly in the service actor because
 // we want to be able to test it independently, without having to spin up an actor
@@ -30,11 +33,17 @@ class ECommerceActor(val cartHandlerProps: Props) extends Actor with ECommerceRo
 }
 
 // this trait defines our service behavior independently from the service actor
-trait ECommerceRoute extends HttpService with StaticResources with Api {
+trait ECommerceRoute extends HttpService with StaticResources with Api with DirectiveExtensions {
   val cartHandler: ActorRef
-  def showPath(req: HttpRequest) = req.method match {
-    case HttpMethods.POST => LogEntry("Method = %s, Path = %s, Data = %s" format (req.method, req.uri, req.entity), Logging.InfoLevel)
-    case _ => LogEntry("Method = %s, Path = %s" format (req.method, req.uri), Logging.InfoLevel)
+  
+
+  def showPath(req: HttpRequest):Option[LogEntry] = {
+    def pathEndsWith(uri: Path, suffix: String*) = suffix.exists(uri.toString.endsWith)
+    req match {
+      case req @ HttpRequest(HttpMethods.POST, uri, _, entity, _) => Some(LogEntry("Method = %s, Path = %s, Data = %s" format (req.method, uri, entity), Logging.InfoLevel))
+      case req @ HttpRequest(method, uri, _, _, _) if !pathEndsWith(uri.path, "css", "jpg", "js") => Some(LogEntry("Method = %s, Path = %s" format (method, uri), Logging.InfoLevel))
+      case _ => None
+    }
   }
 
   val myRoute =
@@ -44,44 +53,44 @@ trait ECommerceRoute extends HttpService with StaticResources with Api {
 }
 
 object Api {
-    case class OrderStateResponse(state: String, orderId: Option[String] = None)
+  case class OrderStateResponse(state: String, orderId: Option[String] = None)
 
 }
 
 //REST Api
-trait Api extends HttpService with JsonSerializers with DirectiveExtensions{
+trait Api extends HttpService with JsonSerializers with DirectiveExtensions {
   import akka.pattern.ask
   import ExecutionContext.Implicits.global
   import SimpleCartActor._
   import CartManagerActor._
   import Api._
   implicit val timeout = Timeout(20 seconds)
-  
+
   val cartHandler: ActorRef
 
   //custom directive to retrieve cookie
-  val sessionId:Directive1[String] = getOrCreateSessionCookie("session-id").flatMap {
-    case c:HttpCookie => provide(c.content)
+  val sessionId: Directive1[String] = getOrCreateSessionCookie("session-id").flatMap {
+    case c: HttpCookie => provide(c.content)
   }
-  val shoppingCartRoutes = 
+  val shoppingCartRoutes =
     pathPrefix("cart") {
-        (post & sessionId) {sessionId  =>  
-          entity(as[AddToCartRequest]) { addMsg =>
-            handleCartRequest(Envelope(sessionId, addMsg))
+      (post & sessionId) { sessionId =>
+        entity(as[AddToCartRequest]) { addMsg =>
+          handleCartRequest(Envelope(sessionId, addMsg))
+        }
+      } ~
+        delete {
+          (parameter('itemId) & sessionId) { (itemId, sessionId) =>
+            handleCartRequest(Envelope(sessionId, RemoveFromCartRequest(itemId)))
           }
         } ~
-          delete {
-            (parameter('itemId) & sessionId) {(itemId, sessionId) =>
-              handleCartRequest(Envelope(sessionId, RemoveFromCartRequest(itemId)))
-            }
-          } ~
-          (get & sessionId) { sessionId => 
-            handleCartRequest(Envelope(sessionId, GetCartRequest))
-          }
-    } ~ path("order") {
-        (put & sessionId) { sessionId => 
-          handleOrderRequest(sessionId)
+        (get & sessionId) { sessionId =>
+          handleCartRequest(Envelope(sessionId, GetCartRequest))
         }
+    } ~ path("order") {
+      (put & sessionId) { sessionId =>
+        handleOrderRequest(sessionId)
+      }
     }
   private def handleCartRequest[T](reqCtx: Envelope[T]) = {
     val respFuture = cartHandler.ask(reqCtx).mapTo[Seq[ShoppingCartItem]]

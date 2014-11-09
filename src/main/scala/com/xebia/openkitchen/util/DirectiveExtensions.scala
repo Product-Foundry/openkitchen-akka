@@ -3,6 +3,9 @@ package com.xebia.openkitchen.util
 import spray.routing._
 import spray.http.HttpCookie
 import java.util.UUID
+import spray.routing.directives.LoggingMagnet
+import spray.util.LoggingContext
+import spray.routing.directives.LogEntry
 
 trait DirectiveExtensions extends Directives {
 
@@ -18,4 +21,8 @@ trait DirectiveExtensions extends Directives {
       liftToDirective1(setCookie(sessionCookie), sessionCookie)
     }
   }
+
+  implicit def forMessageFromFullShow[T](show: T ⇒ Option[LogEntry])(implicit log: LoggingContext): LoggingMagnet[T ⇒ Unit] = // # message-magnets
+    LoggingMagnet(show(_).map(_.logTo(log)))
+
 }

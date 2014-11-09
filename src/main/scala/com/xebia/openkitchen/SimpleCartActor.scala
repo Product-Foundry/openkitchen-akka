@@ -21,11 +21,12 @@ object SimpleCartActor {
   case class ShoppingCartItem(item: Device, count: Int = 1)
   
   case object OrderRequest
-    sealed trait OrderState
+    sealed trait OrderState 
   case class OrderProcessed(orderId: String) extends OrderState
   case object OrderProcessingFailed extends OrderState
   
-  def props = Props(classOf[SimpleCartActor], "simple-cart-actor")
+  def props = Props[SimpleCartActor]
+  def name = "simple-cart-actor"
   
   case class CartItems(items: Seq[ShoppingCartItem] = Seq()) {
     def update(item: Device) = {
@@ -41,7 +42,7 @@ object SimpleCartActor {
     def clear() = copy(items = Seq())
     def size = items.size
     def isEmpty = items.isEmpty
-    override def toString = s"${CartItems.getClass().getSimpleName()} ${items.map(_.item.name).mkString}"
+    override def toString = s"CartItems: ${items.map(_.item.name).mkString(", ")}"
   }
  
 }
