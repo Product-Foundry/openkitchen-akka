@@ -9,27 +9,21 @@ import akka.actor._
 import akka.actor.ActorLogging
 import product.ActorContextProductRepoSupport
 
-
-
-/**
- * TODO: transform this actor into a stateful actor making use of Event Sourcing to persist the
- * cart state
- */
 object SimpleCartActor {
-  
+
   case class AddToCartRequest(itemId: String)
   case class RemoveFromCartRequest(itemId: String)
   case object GetCartRequest
   case class ShoppingCartItem(item: Device, count: Int = 1)
-  
+
   case object OrderRequest
-    sealed trait OrderState 
+  sealed trait OrderState
   case class OrderProcessed(orderId: String) extends OrderState
   case object OrderProcessingFailed extends OrderState
-  
+
   def props = Props[SimpleCartActor]
   def name = "simple-cart-actor"
-  
+
   case class CartItems(items: Seq[ShoppingCartItem] = Seq()) {
     def update(item: Device) = {
       val updatedItem = items.find(_.item.id == item.id)
@@ -46,9 +40,8 @@ object SimpleCartActor {
     def isEmpty = items.isEmpty
     override def toString = s"CartItems: ${items.map(_.item.name).mkString(", ")}"
   }
- 
-}
 
+}
 
 class SimpleCartActor extends Actor with ActorLogging with ActorContextProductRepoSupport {
 
