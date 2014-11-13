@@ -53,13 +53,17 @@ curl -b session-id=12121212 -X "PUT" http://localhost:8080/order
 
 ##TODO
 - Commit point 1: Web UI & Spray Rest API voor shopping cart manipulations. Shopping cart*s" Actor and shopping cart Actor are not implemented
--- Lab 1: Implement the shopping cart*s* Actor that creates a shopping cart Actor per session 
-Commit point 2: Implementation of the shopping cart*s* manager Actor. The shopping cart Actor is not implemented.
--- Lab 2: Implement a in-memory shopping cart Actor that supports all CRUD operations of the shopping cart
-Commit point 3: Implementation of an in-memory shopping cart Actor  
--- Lab 3: Provide a new implementation of the shopping cart Actor, which makes use of Akka persistence
-Commit point 4: Implementation of a persistent shopping cart Actor
--- Lab 4: Extend the persistent shopping cart Actor to make use of: passivation and snapshotting
-Commit point 5: Final solution with a persistent shopping cart Actor that supports snapshotting en passivation
+- Lab 1: Implement the shopping cart*s* Actor that creates a shopping cart Actor per session 
+
+- Commit point 2: Implementation of the shopping cart*s* manager Actor. The shopping cart Actor is not implemented.
+- Lab 2: Implement a in-memory shopping cart Actor that supports all CRUD operations of the shopping cart
+
+- Commit point 3: Implementation of an in-memory shopping cart Actor  
+- Lab 3: Provide a new implementation of the shopping cart Actor, which makes use of Akka persistence
+
+- Commit point 4: Implementation of a persistent shopping cart Actor
+- Lab 4: Extend the persistent shopping cart Actor to make use of: passivation and snapshotting
+
+- Commit point 5: Final solution with a persistent shopping cart Actor that supports snapshotting en passivation
 
 
