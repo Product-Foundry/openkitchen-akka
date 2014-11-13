@@ -1,4 +1,4 @@
-# _Xita Innovation day application_ 
+# _Openkitchen Akka Event Sourcing Application_ 
 
 ## Application
 The application is a simple webshop that is based on the 'Xebia-Stack" consisting of: 
