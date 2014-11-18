@@ -26,10 +26,49 @@ class PersistentCartActor extends PersistentActor with ActorLogging with ActorCo
   import PersistentCartActor._
   import productRepo._
   override def persistenceId = context.self.path.name
-
   val receiveTimeout: FiniteDuration = 20 seconds
-
   var cart = CartItems()
+
+  val receiveCommand: Receive = {
+    case AddToCartRequest(itemId) => {
+      doWithItem(itemId) { item =>
+        persist(ItemAddedEvent(itemId)) { evt =>
+          updateStateAndPublish(evt)
+          sender ! cart.items
+        }
+      }
+    }
+    case RemoveFromCartRequest(itemId) => {
+      doWithItem(itemId) { item =>
+        persist(ItemRemovedEvent(itemId)) { evt =>
+          updateStateAndPublish(evt)
+          sender ! cart.items
+        }
+      }
+    }
+    case GetCartRequest => {
+      sender ! cart.items
+    }
+    case OrderRequest => {
+      if (cart.isEmpty) {
+        sender ! OrderProcessingFailed
+      } else {
+        //call order services to order
+        val orderId: UUID = UUID.randomUUID()
+        persist(CartCheckedoutEvent(orderId)) { evt =>
+          updateStateAndPublish(evt)
+          saveSnapshot(cart)
+          sender ! OrderProcessed(orderId.toString)
+        }
+      }
+    }
+    case ReceiveTimeout => {
+      log.info("received timeout")
+      context.become(dying)
+      self ! SaveSnapshotAndDie
+    }
+
+  }
 
   def updateState(event: Event): Unit = {
     event match {
@@ -53,52 +92,19 @@ class PersistentCartActor extends PersistentActor with ActorLogging with ActorCo
       log.info(s"recovery: got snapshot: ${shoppingCartState.size} items")
       cart = shoppingCartState
   }
-
   val dying: Receive = {
     case SaveSnapshotAndDie => { log.info("saving snapshot"); saveSnapshot(cart); log.info("saved snapshot") }
     case SaveSnapshotSuccess(_) => { log.info("farewell cruel world!"); self ! PoisonPill }
     case SaveSnapshotFailure(_, _) => { log.info("Could not save snapshot!"); self ! PoisonPill }
   }
 
-  val receiveCommand: Receive = {
-    case ReceiveTimeout => {
-      log.info("received timeout")
-      context.become(dying)
-      self ! SaveSnapshotAndDie
-    }
+  private def publish(event: Event) = {
+    system.eventStream.publish(event)
+  }
 
-    case AddToCartRequest(itemId) => {
-      doWithItem(itemId) { item =>
-        persist(ItemAddedEvent(itemId)) { evt =>
-          updateState(evt)
-          sender ! cart.items
-        }
-      }
-    }
-    case RemoveFromCartRequest(itemId) => {
-      doWithItem(itemId) { item =>
-        persist(ItemRemovedEvent(itemId)) { evt =>
-          updateState(evt)
-          sender ! cart.items
-        }
-      }
-    }
-    case GetCartRequest => {
-      sender ! cart.items
-    }
-    case OrderRequest => {
-      if (cart.isEmpty) {
-        sender ! OrderProcessingFailed
-      } else {
-        //call order services to order
-        val orderId: UUID = UUID.randomUUID()
-        persist(CartCheckedoutEvent(orderId)) { evt =>
-          updateState(evt)
-          saveSnapshot(cart)
-          sender ! OrderProcessed(orderId.toString)
-        }
-      }
-    }
+  private def updateStateAndPublish(event: Event) = {
+    updateState(event)
+    publish(event)
   }
 
   private def doWithItem(itemId: String)(item: Device => Unit) = {
