@@ -1,18 +1,16 @@
 package com.xebia.openkitchen
 package cart
 
-import akka.testkit.TestSupport._
 import scala.concurrent.duration._
 import akka.testkit.PersistenceSpec
 import akka.testkit.ImplicitSender
 import akka.testkit.AkkaSpec
+import akka.testkit.TestProbe
+import akka.actor.Terminated
+import scala.util.Random._
 import CartManagerActor._
 import SimpleCartActor._
 import product._
-import akka.testkit.TestProbe
-import akka.actor.Terminated
-import scalaz.Id
-import scala.util.Random._
 import cart.CartDomain._
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner

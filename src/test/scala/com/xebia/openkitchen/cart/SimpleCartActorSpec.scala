@@ -1,8 +1,6 @@
 package com.xebia.openkitchen
 package cart
 
-import spray.testkit.Specs2RouteTest
-import akka.testkit.TestSupport._
 import CartManagerActor._
 import product._
 import cart.CartDomain._
