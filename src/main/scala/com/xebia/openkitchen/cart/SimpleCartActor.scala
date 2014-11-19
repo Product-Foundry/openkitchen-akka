@@ -56,7 +56,7 @@ class SimpleCartActor extends Actor with ActorLogging with ActorContextProductRe
     if (!cart.items.isEmpty) {
       log.info(s"place order for items: $cart")
       cart = cart.clear()
-      //send items to order actor
+      //real order processing is skipped
       OrderProcessed(UUID.randomUUID().toString)
     } else {
       OrderProcessingFailed

@@ -53,7 +53,7 @@ class PersistentCartActor extends PersistentActor with ActorLogging with ActorCo
       if (cart.isEmpty) {
         sender ! OrderProcessingFailed
       } else {
-        //call order services to order
+        //real order processing is skipped
         val orderId: UUID = UUID.randomUUID()
         persist(CartCheckedoutEvent(orderId)) { evt =>
           updateStateAndPublish(evt)
