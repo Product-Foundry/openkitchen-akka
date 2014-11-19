@@ -1,7 +1,6 @@
 package com.xebia.openkitchen
 package api
 
-import org.junit.runner.RunWith
 import akka.testkit.TestProbe
 import spray.http.StatusCodes._
 import spray.httpx.SprayJsonSupport._
@@ -15,9 +14,6 @@ import product.ProductStore
 import util._
 import cart.CartDomain._
 import spray.testkit.ScalatestRouteTest
-import org.scalatest.Matchers
-import org.scalatest.WordSpecLike
-
 import org.scalatest.Matchers
 import org.scalatest.WordSpecLike
 import org.junit.runner.RunWith
