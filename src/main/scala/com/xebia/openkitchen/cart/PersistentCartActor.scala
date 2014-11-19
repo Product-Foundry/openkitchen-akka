@@ -6,9 +6,9 @@ import akka.actor.{ ActorLogging, PoisonPill, ReceiveTimeout, Props }
 import akka.persistence._
 import scala.concurrent.duration._
 import product._
-import SimpleCartActor._
 import akka.actor.actorRef2Scala
 import product.ActorContextProductRepoSupport
+import CartDomain._
 object PersistentCartActor {
 
   def props = Props[PersistentCartActor]
@@ -64,7 +64,20 @@ class PersistentCartActor extends PersistentActor with ActorLogging with ActorCo
     }
     case ReceiveTimeout => {
       log.info("received timeout")
-      context.become(dying)
+      context.become {
+        case SaveSnapshotAndDie => {
+          log.info("saving snapshot")
+          saveSnapshot(cart)
+        }
+        case SaveSnapshotSuccess(_) => {
+          log.info("Snapshot saved. I'm going to passivate")
+          self ! PoisonPill
+        }
+        case SaveSnapshotFailure(_, ex) => {
+          log.info(s"Snapshot could not be saved due to: ${ex.getMessage}. I'm going to passivate")
+          self ! PoisonPill
+        }
+      }
       self ! SaveSnapshotAndDie
     }
 
@@ -92,20 +105,6 @@ class PersistentCartActor extends PersistentActor with ActorLogging with ActorCo
       log.info(s"recovery: got snapshot: ${shoppingCartState.size} items")
       cart = shoppingCartState
   }
-  val dying: Receive = {
-    case SaveSnapshotAndDie => { log.info("saving snapshot"); saveSnapshot(cart); log.info("saved snapshot") }
-    case SaveSnapshotSuccess(_) => { log.info("farewell cruel world!"); self ! PoisonPill }
-    case SaveSnapshotFailure(_, _) => { log.info("Could not save snapshot!"); self ! PoisonPill }
-  }
-
-  private def publish(event: Event) = {
-    system.eventStream.publish(event)
-  }
-
-  private def updateStateAndPublish(event: Event) = {
-    updateState(event)
-    publish(event)
-  }
 
   private def doWithItem(itemId: String)(item: Device => Unit) = {
     val device = productRepo.productMap.get(itemId) match {
@@ -113,4 +112,14 @@ class PersistentCartActor extends PersistentActor with ActorLogging with ActorCo
       case None => sender ! akka.actor.Status.Failure(new IllegalArgumentException(s"Product with id $itemId not found."))
     }
   }
+
+  private def updateStateAndPublish(event: Event) = {
+    updateState(event)
+    publish(event)
+  }
+
+  private def publish(event: Event) = {
+    system.eventStream.publish(event)
+  }
+
 }

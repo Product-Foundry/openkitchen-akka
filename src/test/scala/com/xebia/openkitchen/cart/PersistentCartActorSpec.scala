@@ -9,16 +9,14 @@ import akka.testkit.AkkaSpec
 import CartManagerActor._
 import SimpleCartActor._
 import product._
-import product._
 import akka.testkit.TestProbe
 import akka.actor.Terminated
 import scalaz.Id
 import scala.util.Random._
-
-trait DeactivatedTimeConversions extends org.specs2.time.TimeConversions {
-  override def intToRichLong(v: Int) = super.intToRichLong(v)
-}
-
+import cart.CartDomain._
+import org.junit.runner.RunWith
+import org.scalatest.junit.JUnitRunner
+@RunWith(classOf[JUnitRunner])
 class PersistentCartActorSpec extends AkkaSpec(PersistenceSpec.config("leveldb", "ShoppingCartActorSpec")) with PersistenceSpec with ImplicitSender with ProductStoreSupportProvider {
   import PersistentCartActor._
   "The CartActor" should {
@@ -33,32 +31,32 @@ class PersistentCartActorSpec extends AkkaSpec(PersistenceSpec.config("leveldb",
 
       cart ! AddToCartRequest(product.id)
       eventStreamProbe.expectMsg(ItemAddedEvent(product.id))
-      expectMsg(Seq(ShoppingCartItem(product, 1)))
+      expectMsg(Seq(CartItem(product, 1)))
 
       cart ! GetCartRequest
-      expectMsg(Seq(ShoppingCartItem(product, 1)))
+      expectMsg(Seq(CartItem(product, 1)))
     }
     "add item to cart" in {
       val cart = createActorUnderTest(random())
       cart ! AddToCartRequest(product.id)
       eventStreamProbe.expectMsg(ItemAddedEvent(product.id))
-      expectMsg(Seq(ShoppingCartItem(product, 1)))
+      expectMsg(Seq(CartItem(product, 1)))
     }
     "update cart when existing item is added" in {
       val cart = createActorUnderTest(random())
       cart ! AddToCartRequest(product.id)
       eventStreamProbe.expectMsg(ItemAddedEvent(product.id))
-      expectMsg(Seq(ShoppingCartItem(product, 1)))
+      expectMsg(Seq(CartItem(product, 1)))
 
       cart ! AddToCartRequest(product.id)
       eventStreamProbe.expectMsg(ItemAddedEvent(product.id))
-      expectMsg(Seq(ShoppingCartItem(product, 2)))
+      expectMsg(Seq(CartItem(product, 2)))
     }
     "remove item from cart" in {
       val cart = createActorUnderTest(random())
       cart ! AddToCartRequest(product.id)
       eventStreamProbe.expectMsg(ItemAddedEvent(product.id))
-      expectMsg(Seq(ShoppingCartItem(product, 1)))
+      expectMsg(Seq(CartItem(product, 1)))
 
       cart ! RemoveFromCartRequest(product.id)
       eventStreamProbe.expectMsg(ItemRemovedEvent(product.id))
@@ -69,7 +67,7 @@ class PersistentCartActorSpec extends AkkaSpec(PersistenceSpec.config("leveldb",
       val cart = createActorUnderTest(randomId)
       cart ! AddToCartRequest(product.id)
       eventStreamProbe.expectMsg(ItemAddedEvent(product.id))
-      expectMsg(Seq(ShoppingCartItem(product, 1)))
+      expectMsg(Seq(CartItem(product, 1)))
 
       watch(cart)
       system.stop(cart)
@@ -78,7 +76,7 @@ class PersistentCartActorSpec extends AkkaSpec(PersistenceSpec.config("leveldb",
         case Terminated(cart) ⇒
           val recoveredCart = createActorUnderTest(randomId)
           recoveredCart ! GetCartRequest
-          expectMsg(Seq(ShoppingCartItem(product, 1)))
+          expectMsg(Seq(CartItem(product, 1)))
           system.stop(recoveredCart)
       }
     }

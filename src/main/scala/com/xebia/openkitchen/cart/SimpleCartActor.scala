@@ -8,43 +8,14 @@ import CartManagerActor.Envelope
 import akka.actor._
 import akka.actor.ActorLogging
 import product.ActorContextProductRepoSupport
+import CartDomain._
 
 object SimpleCartActor {
-
-  case class AddToCartRequest(itemId: String)
-  case class RemoveFromCartRequest(itemId: String)
-  case object GetCartRequest
-  case class ShoppingCartItem(item: Device, count: Int = 1)
-
-  case object OrderRequest
-  sealed trait OrderState
-  case class OrderProcessed(orderId: String) extends OrderState
-  case object OrderProcessingFailed extends OrderState
-
   def props = Props[SimpleCartActor]
   def name = "simple-cart-actor"
-
-  case class CartItems(items: Seq[ShoppingCartItem] = Seq()) {
-    def update(item: Device) = {
-      val updatedItem = items.find(_.item.id == item.id)
-        .map(item => item.copy(count = (item.count + 1)))
-        .getOrElse(ShoppingCartItem(item))
-      copy(items = (items.filterNot(_.item.id == item.id) :+ updatedItem))
-    }
-    def remove(item: Device) = {
-      copy(items = items.filterNot(_.item.id == item.id))
-    }
-
-    def clear() = copy(items = Seq())
-    def size = items.size
-    def isEmpty = items.isEmpty
-    override def toString = s"CartItems: ${items.map(_.item.name).mkString(", ")}"
-  }
-
 }
 
 class SimpleCartActor extends Actor with ActorLogging with ActorContextProductRepoSupport {
-
   import SimpleCartActor._
   log.info(s"Creating a new ShoppingCartActor")
   var cart = CartItems()

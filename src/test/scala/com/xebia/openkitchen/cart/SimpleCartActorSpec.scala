@@ -2,35 +2,60 @@ package com.xebia.openkitchen
 package cart
 
 import spray.testkit.Specs2RouteTest
-import org.specs2.mutable.Specification
 import akka.testkit.TestSupport._
 import CartManagerActor._
-import SimpleCartActor._
 import product._
-import product._
-class SimpleCartActorSpec extends Specification
-  with Specs2RouteTest with ProductStoreSupportProvider {
-
+import cart.CartDomain._
+import akka.testkit.AkkaSpec
+import akka.testkit.ImplicitSender
+import org.junit.runner.RunWith
+import org.scalatest.junit.JUnitRunner
+@RunWith(classOf[JUnitRunner])
+class SimpleCartActorSpec extends AkkaSpec with ProductStoreSupportProvider with ImplicitSender  {
+  val product = productRepo.products.head
   "The CartActor" should {
-    "read items" in new AkkaTestkitContext() {
-      val reverseActor = system.actorOf(SimpleCartActor.props)
-      import akka.pattern.ask
-
-      reverseActor ! GetCartRequest
-
+    "return carts contents" in {
+      val cart = createActorUnderTest()
+      cart ! GetCartRequest
       expectMsg(Seq())
 
+      cart ! AddToCartRequest(product.id)
+      expectMsg(Seq(CartItem(product, 1)))
+
+      cart ! GetCartRequest
+      expectMsg(Seq(CartItem(product, 1)))
     }
-    "order" in new AkkaTestkitContext() {
-      val reverseActor = system.actorOf(SimpleCartActor.props)
-      import akka.pattern.ask
-      val product = productRepo.products.head
-      reverseActor ! AddToCartRequest(product.id)
+    "add item to cart" in {
+      val cart = createActorUnderTest()
+      cart ! AddToCartRequest(product.id)
+      expectMsg(Seq(CartItem(product, 1)))
+    }
+    "update cart when existing item is added" in {
+      val cart = createActorUnderTest()
+      cart ! AddToCartRequest(product.id)
+      expectMsg(Seq(CartItem(product, 1)))
 
-      expectMsg(Seq(ShoppingCartItem(product, 1)))
+      cart ! AddToCartRequest(product.id)
+      expectMsg(Seq(CartItem(product, 2)))
+    }
+    "remove item from cart" in {
+      val cart = createActorUnderTest()
+      cart ! AddToCartRequest(product.id)
+      expectMsg(Seq(CartItem(product, 1)))
 
-      reverseActor ! OrderRequest
+      cart ! RemoveFromCartRequest(product.id)
+      expectMsg(Seq())
+    }
+    "place order" in {
+      val cart = createActorUnderTest()
+      cart ! AddToCartRequest(product.id)
+      expectMsg(Seq(CartItem(product, 1)))
+
+      cart ! OrderRequest
       expectMsgClass(classOf[OrderProcessed])
     }
   }
+
+  private def createActorUnderTest() = system.actorOf(SimpleCartActor.props)
+
 }

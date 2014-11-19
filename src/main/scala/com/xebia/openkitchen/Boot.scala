@@ -11,9 +11,8 @@ trait WebApp extends App {
 
   implicit val system = ActorSystem("webshop")
 
-  val cartHandlerProps = CartManagerActor.props(SimpleCartActor.props)
   // create and start our service actor
-  val service = system.actorOf(WebshopActor.props(cartHandlerProps), WebshopActor.name)
+  val service = system.actorOf(WebshopActor.props, WebshopActor.name)
 
   // To run project on Heroku, get PORT from environment
   val httpHost = "0.0.0.0"
