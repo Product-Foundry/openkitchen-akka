@@ -1,4 +1,4 @@
-# _Xita Innovation day application_ 
+# _Openkitchen Akka Event Sourcing Application_ 
 
 ## Application
 The application is a simple webshop that is based on the 'Xebia-Stack" consisting of: 
@@ -52,7 +52,23 @@ curl -b session-id=12121212 -X "PUT" http://localhost:8080/order
 ```
 
 ##TODO
-The current implementation of the application uses an Actor (ShoppingCartActor) that keeps the shopping cart in memory. This implementation we want to improve. During the innovation day we will rebuild this application - in Java if wanted - to:
-- use Event Sourcing (by means of a persistant actor http://www.slideshare.net/ktoso/akka-persistence-event-sourcing-in-30-minutes) to process all shopping cart events
-- use clustering for on-demand scaling 
+_Commit point 1_
+- Starting point: Web UI & Spray Rest API voor shopping cart manipulations. Shopping cart*s" Actor and shopping cart Actor are not implemented
+- Lab 1: Implement the shopping cart*s* Actor that creates a shopping cart Actor per session 
+
+_Commit point 2_
+- Starting point: Implementation of the shopping cart*s* manager Actor. The shopping cart Actor is not implemented.
+- Lab 2: Implement a in-memory shopping cart Actor that supports all CRUD operations of the shopping cart
+
+_Commit point 3_
+- Starting point: Implementation of an in-memory shopping cart Actor  
+- Lab 3: Provide a new implementation of the shopping cart Actor, which makes use of Akka persistence
+
+_Commit point 4_
+- Starting point: Implementation of a persistent shopping cart Actor
+- Lab 4: Extend the persistent shopping cart Actor to make use of: passivation and snapshotting
+
+_Commit point 5_
+- Final solution with a persistent shopping cart Actor that supports snapshotting en passivation
+
 
