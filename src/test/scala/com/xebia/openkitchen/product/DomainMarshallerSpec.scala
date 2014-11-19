@@ -1,7 +1,6 @@
 package com.xebia.openkitchen
 package product
 
-import org.specs2.mutable.Specification
 import spray.http._
 import spray.http.HttpCharsets._
 import spray.http.MediaTypes._

@@ -1,11 +1,12 @@
 package com.xebia.openkitchen
 package product
-import java.io.File
+import java.io._
 import spray.json.JsonParser
 import scala.io.Source
 import java.net.URI
 import scala.io.Source
-import com.xebia.openkitchen.api.JsonSerializers
+import api.JsonSerializers
+import spray.json.JsonReader
 
 /**
  * Product repository trait
@@ -15,11 +16,9 @@ class ProductStore(val products: Seq[Device]) {
 }
 
 object ProductStore extends ProductJsonSerializers {
-  def apply():ProductStore = {
+  def apply(): ProductStore = {
     val products = productFilePaths.map { path =>
-      val productStr = Source.fromInputStream(getClass.getResourceAsStream(path)).mkString
-      val jsonAst = JsonParser(productStr)
-      jsonAst.convertTo[Device]
+      parse[Device](getClass.getResourceAsStream(path))
     }
     new ProductStore(products)
   }
@@ -33,12 +32,14 @@ object ProductStore extends ProductJsonSerializers {
    */
   private def productFilePaths: Seq[String] = {
     val productDirRoot = "/root/phones"
-    import org.json4s._
-    import org.json4s.native.JsonMethods._
-    val productsStr = Source.fromInputStream(ProductStoreExtension.getClass.getResourceAsStream(s"$productDirRoot/phones.json")).mkString
-    val jsonAst = parse(productsStr)
-    val productsJStr = jsonAst \\ "id" \\ classOf[JString]
-    productsJStr.map(p => s"$productDirRoot/$p.json")
+    val metadata = parse[Seq[DeviceMetaData]](ProductStoreExtension.getClass.getResourceAsStream(s"$productDirRoot/phones.json"))
+    metadata.map(p => s"$productDirRoot/${p.id}.json")
+  }
+
+  private def parse[T: JsonReader](is: InputStream) = {
+    val productsStr = Source.fromInputStream(is).mkString
+    val jsonAst = JsonParser(productsStr)
+    jsonAst.convertTo[T]
   }
 
 }

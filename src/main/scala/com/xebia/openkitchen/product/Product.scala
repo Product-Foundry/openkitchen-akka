@@ -14,7 +14,7 @@ case class Hardware(accelerometer: Boolean, audioJack: String, cpu: String, fmRa
 case class SizeAndWeight(dimensions: List[String], weight: String)
 case class Storage(flash: String, ram: String)
 case class Device(additionalFeatures: String, android: Android, availability: List[String], battery: Battery, camera: Camera, connectivity: Connectivity, description: String, display: Display, hardware: Hardware, id: String, images: List[String], name: String, sizeAndWeight: SizeAndWeight, storage: Storage)
-
+case class DeviceMetaData(age: Double, id: String, imageUrl: String, name: String, snippet: String)
 trait ProductJsonSerializers extends DefaultJsonProtocol with SprayJsonSupport {
   implicit val androidFormat = jsonFormat2(Android.apply)
   implicit val batteryFormat = jsonFormat3(Battery.apply)
@@ -25,5 +25,6 @@ trait ProductJsonSerializers extends DefaultJsonProtocol with SprayJsonSupport {
   implicit val sAndWFormat = jsonFormat2(SizeAndWeight.apply)
   implicit val storageFormat = jsonFormat2(Storage.apply)
   implicit val deviceFormat = jsonFormat14(Device.apply)
+  implicit val deviceMetaDataFormat = jsonFormat5(DeviceMetaData.apply)
 }
 
