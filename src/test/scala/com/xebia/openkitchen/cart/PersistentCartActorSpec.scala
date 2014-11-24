@@ -11,7 +11,7 @@ import scala.util.Random._
 import CartManagerActor._
 import SimpleCartActor._
 import product._
-import cart.CartDomain._
+import cart.CartDomain._ 
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 @RunWith(classOf[JUnitRunner])

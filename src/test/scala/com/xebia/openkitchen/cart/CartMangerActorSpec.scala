@@ -1,9 +1,8 @@
 package com.xebia.openkitchen
-
+package cart
 import akka.actor._
 import akka.testkit._
 import cart.CartManagerActor._
-import cart.CartManagerActor
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 @RunWith(classOf[JUnitRunner])

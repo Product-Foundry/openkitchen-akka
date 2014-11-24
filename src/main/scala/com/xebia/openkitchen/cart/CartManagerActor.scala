@@ -11,7 +11,7 @@ object CartManagerActor {
   def props(cartProps: Props) = Props(new CartManagerActor(cartProps))
   def name = "cart-manager-actor"
 
-  case class Envelope[T](sessionId: String, t: T)
+  case class Envelope[T](sessionId: String, payload: T)
 }
 
 class CartManagerActor(shoppingCartProps: Props) extends Actor with ActorContextCreationSupport with ActorLogging {
