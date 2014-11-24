@@ -29,6 +29,10 @@ scalacOptions := Seq("-encoding", "utf8",
 
 parallelExecution in Test := false
 
+unmanagedResourceDirectories in Compile <++= baseDirectory { base =>
+    Seq( base / "src/main/webapp" )
+}
+
 mainClass := Some("com.xebia.openkitchen.Boot")
 
 resolvers ++= Seq("Sonatype Releases"   at "http://oss.sonatype.org/content/repositories/releases",
@@ -51,9 +55,7 @@ libraryDependencies ++= {
     "io.spray"                %% "spray-client"                   % sprayVersion,
     "io.spray"                %% "spray-routing"                  % sprayVersion,
     "io.spray"                %% "spray-json"                     % "1.3.1",
-    "org.json4s" 	            %% "json4s-native" 	                % "3.2.11",
     "ch.qos.logback"          %  "logback-classic"                % "1.1.2",
-    "com.github.ddevore"      %% "akka-persistence-mongo-casbah"  % "0.7.4",
     "com.typesafe.akka"       %% "akka-testkit"                   % akkaVersion    % "test",
     "io.spray"                %% "spray-testkit"                  % sprayVersion   % "test",
     "org.scalatest"           %% "scalatest"                      % "2.2.2"        % "test",
