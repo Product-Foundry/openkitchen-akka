@@ -68,6 +68,9 @@ curl -b session-id=12121212 -X "PUT" http://localhost:8080/order
 ###Bonus Lab 4 ```git checkout lab4```
 - Starting point: Implementation of a persistent Cart Actor (```PersistentCartActor```)
 - Lab 4: Extend the ```com.xebia.openkitchen.cart.PersistentCartActor``` to make use of: _passivation_ and _snapshotting_
+- Implement a receiveTimeout (e.g. 10 seconds). Upon receival of the ```akka.actor.ReceiveTimeout``` message take a snapshot (```saveSnapshot```) of the current cart
+- After the snapshot is saved Akka persistence sends a  ```akka.persistence.SaveSnapshotSuccess``` or ```akka.persistence.SaveSnapshotFailure``` message to the actor. In either case kill the actor
+- When the actor recovers ```receiveRecover``` receives  a ```akka.persistence.SnapshotOffer```. Make sure it is processsed correctly 
 
 ###Solution ```git checkout final-solution```
 - Final solution with the ```com.xebia.openkitchen.cart.PersistentCartActor``` that supports snapshotting en passivation
