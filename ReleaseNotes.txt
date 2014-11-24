@@ -1,2 +1,0 @@
-v0.1 : 05-08-2013
-Abstracted project template from existing project.
