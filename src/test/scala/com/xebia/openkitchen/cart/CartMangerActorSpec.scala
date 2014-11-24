@@ -17,7 +17,7 @@ class CartMangerActorSpec extends AkkaSpec with ImplicitSender {
       cartManager ! Envelope("aaaaa", "Bla")
       expectMsg("Echoing: Bla")
 
-      system.actorSelection(cartManager.path.child("*")) ! Identify()
+      system.actorSelection(cartManager.path.child("*")) ! Identify("id")
       expectMsgClass(classOf[ActorIdentity]).ref.map(_.path.name) should be(Some("aaaaa"))
 
       cartManager ! Envelope("aaaaa", "Foo")
@@ -26,7 +26,7 @@ class CartMangerActorSpec extends AkkaSpec with ImplicitSender {
       expectMsg("Echoing: Foo")
       expectMsg("Echoing: Bar")
 
-      system.actorSelection(cartManager.path.child("*")) ! Identify()
+      system.actorSelection(cartManager.path.child("*")) ! Identify("id")
 
       val ids = Set(expectMsgClass(classOf[ActorIdentity]), expectMsgClass(classOf[ActorIdentity])).map(_.ref.map(_.path.name))
       ids should be(Set(Some("aaaaa"), Some("bbbbb")))
