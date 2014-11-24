@@ -26,7 +26,6 @@ object Api {
 }
 
 trait Api extends HttpService with JsonSerializers with DirectiveExtensions with ExecutionContextSupport with ActorAskSupport {
-  import cart.SimpleCartActor._
   import cart.CartManagerActor._
   import Api._
   val cartHandler: ActorRef

@@ -17,7 +17,6 @@ object SimpleCartActor {
 
 class SimpleCartActor extends Actor with ActorLogging with ActorContextProductRepoSupport {
   import SimpleCartActor._
-  log.info(s"Creating a new ShoppingCartActor")
   var cart = CartItems()
 
   override def receive: Receive = {
