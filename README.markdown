@@ -1,32 +1,30 @@
 # _Openkitchen Akka Event Sourcing Application_ 
 
 ## Application
-The application is a simple webshop that is based on the 'Xebia-Stack" consisting of: 
+The application is a simple webshop that is build with the following stack: 
 - Akka
 - Spray
 - AngularJS
 - Twitter Bootstrap
 
 ## Build and Run
-- Execute ```./sbt.sh run``` to run the server locally. 
+### With Typesafe Activator
+- Execute ```./bin/activator ui```
+- Activator is a web-ide. Write code, compile it, run tests, run the application or generate files for your favourite IDE.
+- To start the application click on _Run_ and then _Start_ 
 - Open a browser using the following url: ```http://localhost:8080/```
-- There is a nice user interface that let's you call all endpoints of the REST interface
+- From there all endpoints of the REST interface can be called using the gui
+
+### With SBT  
+- Execute ```./bin/sbt.sh```  
+- Type ```run```
+- Open a browser using the following url: ```http://localhost:8080/```
+- From there all endpoints of the REST interface can be called using the gui
 
 ## Create Executable jar
-- Execute ```./sbt.sh assembly```. This will create an executable jar in ```target/scala-2.10```
+- Execute ```./bin/sbt.sh assembly```. This will create an executable jar in ```target/scala-2.11```
 - Run the server as follows: ```java -jar xita-innovationday-assembly-<version>.jar```
 
-
-## Load source code in IDE
-_Eclipse_
-- Download Eclipse version Kepler (4.3) for Scala version **2.10.x**: http://scala-ide.org/download/sdk.html
-- Or install the scala plugin for version **2.10.x**: http://scala-ide.org/download/current.html
-- Run ```./sbt.sh eclipse``` to generate eclipse files and import project
-
-_Idea_
-- Install Scala plugin
-- Install sbt plugin
-- Import project (Generation of idea files is not necessary)
 
 ## Test REST API manually 
 _Note:_ Since it's a shopping cart the REST API is session-based. The name of the session cookie is *session-id*.
@@ -51,24 +49,27 @@ curl -b session-id=12121212 -X "DELETE" http://localhost:8080/cart?itemId=dell-v
 curl -b session-id=12121212 -X "PUT" http://localhost:8080/order
 ```
 
-##TODO
-_Commit point 1_
-- Starting point: Web UI & Spray Rest API voor shopping cart manipulations. Shopping cart*s" Actor and shopping cart Actor are not implemented
-- Lab 1: Implement the shopping cart*s* Actor that creates a shopping cart Actor per session 
+##Labs
+###Lab 1: ```git checkout lab1```
+- Starting point: Web UI & Spray Rest API voor shopping cart manipulations. The Cart*s* Manager Actor and Cart Actor are not implemented
+- Lab 1: Implement the ```com.xebia.openkitchen.cart.CartManagerActor``` that handles ```com.xebia.openkitchen.cart.CartManagerActor.Envelope``` messages received from the Spray route: ```com.xebia.openkitchen.api.Api```. Per session the ```CartManagerActor``` has to create a Cart Actor. To achieve that use the ```Envelope```'s session id to create or get a Cart Actor using the Props passed as a constructor argument. The payload of the ```Envelope``` needs to be forwarded to the Cart Actor. As for now use a Dummy implementation for the Cart Actor. 
+- Make the following test succeed: ```com.xebia.openkitchen.cart.CartMangerActorSpec``` 
 
-_Commit point 2_
-- Starting point: Implementation of the shopping cart*s* manager Actor. The shopping cart Actor is not implemented.
-- Lab 2: Implement a in-memory shopping cart Actor that supports all CRUD operations of the shopping cart
+###Lab 2 ```git checkout lab2```
+- Starting point: Implementation of the Cart*s* Manager Actor (```CartManagerActor```). The Cart Actor is not implemented.
+- Lab 2: Implement the ```com.xebia.openkitchen.cart.SimpleCartActor``` that keeps the cart data in-memory. To see which operations this Actor must support take a look at the Spray route: ```com.xebia.openkitchen.api.Api```, which sends the payload intended for the Cart Actor wrapped in an ```Envelope```. As mentioned in the previous lab the Cart Actor only has to handle the payload message (like ```com.xebia.openkitchen.cart.CartDomain.AddToCartRequest, RemoveFromCartRequest, GetCartRequest, OrderRequest```) and not the whole ```Envelope``` message.
+- Make the following test succeed: ```com.xebia.openkitchen.cart.SimpleCartActorSpec```  
 
-_Commit point 3_
-- Starting point: Implementation of an in-memory shopping cart Actor  
-- Lab 3: Provide a new implementation of the shopping cart Actor, which makes use of Akka persistence
+###Lab 3 ```git checkout lab3```
+- Starting point: Implementation of an in-memory Cart Actor (```SimpleCartActor```)
+- Lab 3: Implement the ```com.xebia.openkitchen.cart.PersistentCartActor```, which makes use of Event Sourcing (Akka persistence) to persist all cart events. Change the Props passed to the ```CartManagerActor``` in ```com.xebia.openkitchen.api.WebshopActor ``` to return an instance of ```PersistentCartActor```.
+- Make the following test succeed: ```com.xebia.openkitchen.cart.PersistentCartActorSpec```
 
-_Commit point 4_
-- Starting point: Implementation of a persistent shopping cart Actor
-- Lab 4: Extend the persistent shopping cart Actor to make use of: passivation and snapshotting
+###Bonus Lab 4 ```git checkout lab4```
+- Starting point: Implementation of a persistent Cart Actor (```PersistentCartActor```)
+- Lab 4: Extend the ```com.xebia.openkitchen.cart.PersistentCartActor``` to make use of: _passivation_ and _snapshotting_
 
-_Commit point 5_
-- Final solution with a persistent shopping cart Actor that supports snapshotting en passivation
+###Solution ```git checkout final-solution```
+- Final solution with the ```com.xebia.openkitchen.cart.PersistentCartActor``` that supports snapshotting en passivation
 
 
