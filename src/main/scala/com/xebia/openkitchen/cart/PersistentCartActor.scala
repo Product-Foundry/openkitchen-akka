@@ -26,7 +26,6 @@ class PersistentCartActor extends PersistentActor with ActorLogging with ActorCo
   import PersistentCartActor._
   import productRepo._
   override def persistenceId = context.self.path.name
-  val receiveTimeout: FiniteDuration = 20 seconds
   var cart = CartItems()
 
   val receiveCommand: Receive = {
@@ -57,30 +56,10 @@ class PersistentCartActor extends PersistentActor with ActorLogging with ActorCo
         val orderId: UUID = UUID.randomUUID()
         persist(CartCheckedoutEvent(orderId)) { evt =>
           updateStateAndPublish(evt)
-          saveSnapshot(cart)
           sender ! OrderProcessed(orderId.toString)
         }
       }
     }
-    case ReceiveTimeout => {
-      log.info("received timeout")
-      context.become {
-        case SaveSnapshotAndDie => {
-          log.info("saving snapshot")
-          saveSnapshot(cart)
-        }
-        case SaveSnapshotSuccess(_) => {
-          log.info("Snapshot saved. I'm going to passivate")
-          self ! PoisonPill
-        }
-        case SaveSnapshotFailure(_, ex) => {
-          log.info(s"Snapshot could not be saved due to: ${ex.getMessage}. I'm going to passivate")
-          self ! PoisonPill
-        }
-      }
-      self ! SaveSnapshotAndDie
-    }
-
   }
 
   def updateState(event: Event): Unit = {
@@ -100,10 +79,6 @@ class PersistentCartActor extends PersistentActor with ActorLogging with ActorCo
       updateState(e)
     case t: RecoveryCompleted =>
       log.info(s"recovery completed; setting receive timeout")
-      context.setReceiveTimeout(receiveTimeout)
-    case SnapshotOffer(_, shoppingCartState: CartItems) =>
-      log.info(s"recovery: got snapshot: ${shoppingCartState.size} items")
-      cart = shoppingCartState
   }
 
   private def doWithItem(itemId: String)(item: Device => Unit) = {
