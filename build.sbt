@@ -62,9 +62,9 @@ libraryDependencies ++= {
     "commons-io"              %  "commons-io"                     % "2.4"          % "test"
 )}
 
-EclipseKeys.createSrc := EclipseCreateSrc.Default + EclipseCreateSrc.Resource
+//EclipseKeys.createSrc := EclipseCreateSrc.Default + EclipseCreateSrc.Resource
 
-EclipseKeys.withSource := true
+//EclipseKeys.withSource := true
 
 site.settings
 
