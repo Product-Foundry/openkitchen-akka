@@ -21,7 +21,7 @@ object WebshopActor {
 class WebshopActor extends Actor with WebshopRoute with ActorExecutionContextSupport with ActorContextCreationSupport {
 
   def actorRefFactory = context
-  override val cartHandler = getOrCreateChild(CartManagerActor.props(PersistentCartActor.props), "cart-manager")
+  override val cartHandler = getOrCreateChild(CartManagerActor.props(SimpleCartActor.props), "cart-manager")
   def receive = runRoute(myRoute)
 
 }
