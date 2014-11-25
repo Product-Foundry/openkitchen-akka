@@ -18,8 +18,7 @@ class CartManagerActor(shoppingCartProps: Props) extends Actor with ActorContext
   import CartManagerActor._
   
   override def receive: Receive = {
-    case Envelope(sessionId, payload) =>
-      getOrCreateChild(shoppingCartProps, sessionId) forward payload
+    case Envelope(sessionId, payload) => ???
   }
 
 }

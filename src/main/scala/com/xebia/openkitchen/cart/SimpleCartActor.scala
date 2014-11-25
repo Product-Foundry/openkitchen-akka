@@ -20,28 +20,10 @@ class SimpleCartActor extends Actor with ActorLogging with ActorContextProductRe
   var cart = CartItems()
 
   override def receive: Receive = {
-    case AddToCartRequest(itemId) => {
-      doWithItem(itemId) { item =>
-        log.info(s"update cart with item: ${item.name}")
-        cart = cart.update(item)
-        sender ! cart.items
-      }
-    }
-    case RemoveFromCartRequest(itemId) => {
-      doWithItem(itemId) { item =>
-        log.info(s"remove item: ${item.name} from cart")
-        cart = cart.remove(item)
-        sender ! cart.items
-      }
-    }
-    case GetCartRequest => {
-      log.info(s"get items from cart: ${cart}")
-      sender ! cart.items
-    }
-    case OrderRequest => {
-      val orderState = processOrder()
-      sender ! orderState
-    }
+    case AddToCartRequest(itemId) => ???
+    case RemoveFromCartRequest(itemId) => ???
+    case GetCartRequest => ???
+    case OrderRequest => ???
   }
 
   private def doWithItem(itemId: String)(item: Device => Unit) = {
@@ -60,7 +42,6 @@ class SimpleCartActor extends Actor with ActorLogging with ActorContextProductRe
     } else {
       OrderProcessingFailed
     }
-
   }
 
 }
