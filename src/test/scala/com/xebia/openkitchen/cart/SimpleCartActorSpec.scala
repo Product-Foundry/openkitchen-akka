@@ -11,7 +11,7 @@ import org.scalatest.junit.JUnitRunner
 @RunWith(classOf[JUnitRunner])
 class SimpleCartActorSpec extends AkkaSpec with ProductStoreSupportProvider with ImplicitSender  {
   val product = productRepo.products.head
-  "The CartActor" should {
+  "Lab 2: The CartActor" should {
     "return carts contents" in {
       val cart = createActorUnderTest()
       cart ! GetCartRequest
