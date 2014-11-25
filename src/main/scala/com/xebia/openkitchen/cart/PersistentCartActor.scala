@@ -27,6 +27,9 @@ class PersistentCartActor extends PersistentActor with ActorLogging with ActorCo
   import productRepo._
   override def persistenceId = ???
   var cart = CartItems()
+  //used in Bonus Lab 4
+  val receiveTimeout = 10 seconds
+
 
   val receiveCommand: Receive = {
     case AddToCartRequest(itemId) => ???
