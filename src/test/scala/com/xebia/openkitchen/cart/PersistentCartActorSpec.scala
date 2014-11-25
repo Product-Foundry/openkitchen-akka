@@ -11,13 +11,15 @@ import scala.util.Random._
 import CartManagerActor._
 import SimpleCartActor._
 import product._
-import cart.CartDomain._ 
+import cart.CartDomain._
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
+import akka.actor.Props
+import akka.persistence.SaveSnapshotSuccess
 @RunWith(classOf[JUnitRunner])
 class PersistentCartActorSpec extends AkkaSpec(PersistenceSpec.config("leveldb", "ShoppingCartActorSpec")) with PersistenceSpec with ImplicitSender with ProductStoreSupportProvider {
   import PersistentCartActor._
-  "The CartActor" should {
+  "Lab 3: The CartActor" should {
     val product = productRepo.products.head
     val eventStreamProbe = TestProbe()
     system.eventStream.subscribe(eventStreamProbe.ref, classOf[Event])
@@ -80,10 +82,39 @@ class PersistentCartActorSpec extends AkkaSpec(PersistenceSpec.config("leveldb",
     }
   }
 
-  def random() = nextInt
-  
-  def createActorUnderTest(id: Any) = {
+  "Bonus Lab 4: The CartActor" should {
+    val randomId = random()
+    val product = productRepo.products.head
+    val eventStreamProbe = TestProbe()
+    system.eventStream.subscribe(eventStreamProbe.ref, classOf[SaveSnapshotSuccess])
+
+    "take snapshot upon receive timeout" in {
+      val cart = createActorUnderTest(randomId, 4 seconds)
+      cart ! AddToCartRequest(product.id)
+      expectMsg(Seq(CartItem(product, 1)))
+
+      watch(cart)
+      expectTerminated(cart, 5 seconds)
+      eventStreamProbe.expectMsgPF() {
+        case SaveSnapshotSuccess(_) =>
+      }
+      val recoveredCart = createActorUnderTest(randomId, 4 seconds)
+      recoveredCart ! GetCartRequest
+      expectMsg(Seq(CartItem(product, 1)))
+    }
+  }
+
+  private def random() = nextInt
+
+  private def createActorUnderTest(id: Any) = {
     system.actorOf(PersistentCartActor.props, id.toString)
   }
+
+  private def createActorUnderTest(id: Any, timeout: FiniteDuration) = {
+    system.actorOf(Props(new PersistentCartActor {
+      override val receiveTimeout = timeout
+    }), id.toString)
+  }
+
 }
 
