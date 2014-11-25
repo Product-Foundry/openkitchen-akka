@@ -18,7 +18,6 @@ object PersistentCartActor {
   case class ItemAddedEvent(itemId: String) extends Event
   case class ItemRemovedEvent(itemId: String) extends Event
   case class CartCheckedoutEvent(orderId: UUID) extends Event
-  case object SaveSnapshotAndDie
 
 }
 
