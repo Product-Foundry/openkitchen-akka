@@ -8,7 +8,7 @@ import org.scalatest.junit.JUnitRunner
 @RunWith(classOf[JUnitRunner])
 class CartMangerActorSpec extends AkkaSpec with ImplicitSender {
 
-  "Cart manager" should {
+  "Lab 1: Cart manager" should {
     "create new cart actors for new sessions" in {
 
       val cartManager = system.actorOf(Props(new CartManagerActor(targetActorProps)))
