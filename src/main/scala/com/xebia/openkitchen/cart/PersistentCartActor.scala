@@ -18,7 +18,6 @@ object PersistentCartActor {
   case class ItemAddedEvent(itemId: String) extends Event
   case class ItemRemovedEvent(itemId: String) extends Event
   case class CartCheckedoutEvent(orderId: UUID) extends Event
-  case object SaveSnapshotAndDie
 
 }
 
@@ -65,20 +64,19 @@ class PersistentCartActor extends PersistentActor with ActorLogging with ActorCo
     case ReceiveTimeout => {
       log.info("received timeout")
       context.become {
-        case SaveSnapshotAndDie => {
-          log.info("saving snapshot")
-          saveSnapshot(cart)
-        }
-        case SaveSnapshotSuccess(_) => {
+        case msg @ SaveSnapshotSuccess(_) => {
           log.info("Snapshot saved. I'm going to passivate")
+          publish(msg)
           self ! PoisonPill
         }
-        case SaveSnapshotFailure(_, ex) => {
+        case msg @ SaveSnapshotFailure(_, ex) => {
           log.info(s"Snapshot could not be saved due to: ${ex.getMessage}. I'm going to passivate")
+          publish(msg)
           self ! PoisonPill
         }
       }
-      self ! SaveSnapshotAndDie
+      log.info("saving snapshot")
+      saveSnapshot(cart)
     }
 
   }
@@ -118,8 +116,8 @@ class PersistentCartActor extends PersistentActor with ActorLogging with ActorCo
     publish(event)
   }
 
-  private def publish(event: Event) = {
-    system.eventStream.publish(event)
+  private def publish(msg: Object) = {
+    system.eventStream.publish(msg)
   }
 
 }
