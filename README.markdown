@@ -62,15 +62,19 @@ curl -b session-id=12121212 -X "PUT" http://localhost:8080/order
 
 ###Lab 3 ```git checkout lab3```
 - Starting point: Implementation of an in-memory Cart Actor (```SimpleCartActor```)
-- Lab 3: Implement the ```com.xebia.openkitchen.cart.PersistentCartActor```, which makes use of Event Sourcing (Akka persistence) to persist all cart events. Change the Props passed to the ```CartManagerActor``` in ```com.xebia.openkitchen.api.WebshopActor ``` to return an instance of ```PersistentCartActor```.
-- Make the following test succeed: ```com.xebia.openkitchen.cart.PersistentCartActorSpec```
+- Lab 3: Implement the ```com.xebia.openkitchen.cart.PersistentCartActor```, which makes use of Event Sourcing (Akka persistence) to persist all cart events. 
+- For testability add each succesfully persisted ```Event``` to the eventStream using the predefined ```publish``` method.   
+- Change the Props passed to the ```CartManagerActor``` in ```com.xebia.openkitchen.api.WebshopActor ``` to return an instance of ```PersistentCartActor```.
+- Make the following tests succeed: Lab 3 of ```com.xebia.openkitchen.cart.PersistentCartActorSpec```
 
 ###Bonus Lab 4 ```git checkout lab4```
 - Starting point: Implementation of a persistent Cart Actor (```PersistentCartActor```)
 - Lab 4: Extend the ```com.xebia.openkitchen.cart.PersistentCartActor``` to make use of: _passivation_ and _snapshotting_
 - Implement a receiveTimeout (e.g. 10 seconds). Upon receival of the ```akka.actor.ReceiveTimeout``` message take a snapshot (```saveSnapshot```) of the current cart
-- After the snapshot is saved Akka persistence sends a  ```akka.persistence.SaveSnapshotSuccess``` or ```akka.persistence.SaveSnapshotFailure``` message to the actor. In either case kill the actor
+- After the snapshot is saved Akka persistence sends a  ```akka.persistence.SaveSnapshotSuccess``` or ```akka.persistence.SaveSnapshotFailure``` message to the actor. In both cases: set the message on the message bus for testability, then  kill the actor
 - When the actor recovers ```receiveRecover``` receives  a ```akka.persistence.SnapshotOffer```. Make sure it is processsed correctly 
+- Make the following test succeed: Bonus Lab 4 of ```com.xebia.openkitchen.cart.PersistentCartActorSpec```
+
 
 ###Solution ```git checkout final-solution```
 - Final solution with the ```com.xebia.openkitchen.cart.PersistentCartActor``` that supports snapshotting en passivation
