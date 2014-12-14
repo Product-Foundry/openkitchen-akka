@@ -2,6 +2,10 @@ import AssemblyKeys._ // put this at the top of the file
 
 import com.typesafe.sbt.SbtStartScript
 
+import com.typesafe.sbt.SbtAspectj._
+
+aspectjSettings
+
 assemblySettings
 
 seq(SbtStartScript.startScriptForClassesSettings: _*)
@@ -27,7 +31,15 @@ scalacOptions := Seq("-encoding", "utf8",
                      "-Xlog-reflective-calls"
                     )
 
+javaOptions <++= AspectjKeys.weaverOptions in Aspectj
+
+javaOptions += "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005"
+
 parallelExecution in Test := false
+
+fork in Test := true
+
+fork in run := true
 
 unmanagedResourceDirectories in Compile <++= baseDirectory { base =>
     Seq( base / "src/main/webapp" )
@@ -56,6 +68,12 @@ libraryDependencies ++= {
     "io.spray"                %% "spray-routing"                  % sprayVersion,
     "io.spray"                %% "spray-json"                     % "1.3.1",
     "ch.qos.logback"          %  "logback-classic"                % "1.1.2",
+    "io.kamon" %% "kamon-core" % "0.3.6-SNAPSHOT",
+    "io.kamon" %% "kamon-log-reporter" % "0.3.6-SNAPSHOT",
+    "io.kamon" %% "kamon-system-metrics" % "0.3.6-SNAPSHOT",
+    "io.kamon" %% "kamon-spray" % "0.3.6-SNAPSHOT",
+    "io.kamon" %% "kamon-statsd" % "0.3.6-SNAPSHOT",
+    "io.kamon" %% "kamon-dashboard" % "0.3.6-SNAPSHOT",
     "com.typesafe.akka"       %% "akka-testkit"                   % akkaVersion    % "test",
     "io.spray"                %% "spray-testkit"                  % sprayVersion   % "test",
     "org.scalatest"           %% "scalatest"                      % "2.2.2"        % "test",

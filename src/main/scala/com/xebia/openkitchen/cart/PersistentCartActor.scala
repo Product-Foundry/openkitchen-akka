@@ -30,6 +30,7 @@ class PersistentCartActor extends PersistentActor with ActorLogging with ActorCo
 
   val receiveCommand: Receive = {
     case AddToCartRequest(itemId) => {
+      Thread.sleep(1000)
       doWithItem(itemId) { item =>
         persist(ItemAddedEvent(itemId)) { evt =>
           updateStateAndPublish(evt)
